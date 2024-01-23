@@ -161,13 +161,14 @@ namespace gfx
   {
     std::lock_guard<std::mutex> guard(viewMutex);
     auto tapEvent = mNavigation.tapEvent();
-    mScreenSaver();
+    // modZZ: screen saver is broken - activates on touch and not on timeout (automatically) and does not deactivate 
+    // mScreenSaver();
 
-    // Abort when Screensaver is on and no touch event happened.
-    if (!mScreenSaver.tapped(tapEvent))
-    {
-      return;
-    }
+    // // Abort when Screensaver is on and no touch event happened.
+    // if (!mScreenSaver.tapped(tapEvent))
+    // {
+    //   return;
+    // }
 
     mpStatusBar->draw();
     std::for_each(mpSubViews.begin(), mpSubViews.end(), [&](auto& subView) {
@@ -194,13 +195,14 @@ namespace gfx
   {
     std::lock_guard<std::mutex> guard(viewMutex);
     auto btnEvent = mNavigation.buttonEvent();
-    mScreenSaver();
+    // FIXME: screen saver is broken - activates on touch and not on timeout (automatically) and does not deactivate
+    // mScreenSaver();
 
-    // Abort when Screensaver is on and no touch event happened.
-    if (!mScreenSaver.tapped(btnEvent))
-    {
-      return;
-    }
+    // // Abort when Screensaver is on and no touch event happened.
+    // if (!mScreenSaver.tapped(btnEvent))
+    // {
+    //   return;
+    // }
 
     if (btnEvent)
     {

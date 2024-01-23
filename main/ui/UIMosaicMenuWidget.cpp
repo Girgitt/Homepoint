@@ -63,7 +63,7 @@ namespace gfx
       auto horizontalLine = mFrame;
       horizontalLine.size.height = 1;
       horizontalLine.position.y = mFrame.position.y + h * std::floor(mFrame.size.height / mRows);
-      mpScreen->createSprite(horizontalLine, Color::LightGrayColor());
+      mpScreen->createSprite(horizontalLine, Color::StormCloudColor());
       mpScreen->pushSprite(horizontalLine.position);
       mpScreen->deleteSprite();
     }
@@ -73,7 +73,7 @@ namespace gfx
       int w = std::ceil<int>(mFrame.size.width/mCols) + 1;
       verticalLine.size.width = 1;
       verticalLine.position.x = mFrame.position.x + v * w;
-      mpScreen->createSprite(verticalLine, Color::LightGrayColor());
+      mpScreen->createSprite(verticalLine, Color::StormCloudColor());
       mpScreen->pushSprite(verticalLine.position);
       mpScreen->deleteSprite();
     }

@@ -12,8 +12,7 @@ namespace gfx
 
     uint16_t getColorInt()
     {
-      return static_cast<uint16_t>((r << 16) | (g << 8) |
-                                    (b << 0));
+      return static_cast<uint16_t>((r*31/255 >> 0) << 11) | ((g*63/255 >> 0) << 5) | ((b*31/255) >> 0); //OK
     }
 
     static Color BlackColor()
@@ -29,6 +28,11 @@ namespace gfx
     static Color LightGrayColor()
     {
       return {114, 126, 145};
+    }
+
+    static Color StormCloudColor()
+    {
+    return {79, 102, 106};
     }
 
     static Color DarkGreenColor()
