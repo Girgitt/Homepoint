@@ -86,7 +86,7 @@ namespace driver
 
       void drawJpg(const uint8_t* arrayname, size_t imageSize, const Point position)
       {
-        printf("Size: %i\r\n", imageSize);
+        //printf("Size: %i\r\n", imageSize);
         mEfx.drawJpeg(arrayname, imageSize, position.x, position.y, &mSprite);
       }
 

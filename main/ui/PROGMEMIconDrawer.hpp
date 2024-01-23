@@ -33,9 +33,9 @@ namespace util
       });
       if (icon == imageMapping.end())
       {
-        printf("Couldn't resolve image ");
-        printf(fileName.c_str());
-        printf("\r\n");
+        //printf("Couldn't resolve image ");
+        //printf(fileName.c_str());
+        //printf("\r\n");
 
         SPIFFSIconDrawer<ScreenDriver>::drawJpeg(screenPtr, fileName, position);
         return;
