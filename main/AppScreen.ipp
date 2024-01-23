@@ -161,7 +161,7 @@ namespace gfx
   {
     std::lock_guard<std::mutex> guard(viewMutex);
     auto tapEvent = mNavigation.tapEvent();
-    // modZZ: screen saver is broken - activates on touch and not on timeout (automatically) and does not deactivate 
+    // FIXME: screen saver is broken - activates on touch and not on timeout (automatically) and does not deactivate 
     // mScreenSaver();
 
     // // Abort when Screensaver is on and no touch event happened.
