@@ -87,14 +87,14 @@ namespace ctx
   {
     if (state.wifiState == ctx::WifiAssociationState::CONNECTED)
     {
+      if (mpMQTTConnection && !mModel.mMQTTServerConfig.addr.empty())
+      {
+        mpMQTTConnection->connect();
+      }
       if (mModel.mTimeZone != "")
       {
         mNTPSync = std::make_shared<ntp::NTPSync>(mModel.mTimeZone);
         mNTPSync->syncTime();
-      }
-      if (mpMQTTConnection && !mModel.mMQTTServerConfig.addr.empty())
-      {
-        mpMQTTConnection->connect();
       }
       mpWebServer->startServer();
     }
