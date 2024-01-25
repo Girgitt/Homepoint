@@ -8,6 +8,8 @@
 #include <touch/TouchDriver.h>
 #include <util/varianthelper.hpp>
 
+#include <SharedGlobalState.h>
+
 #include "Arduino.h"
 #include "SPI.h"
 
@@ -22,6 +24,8 @@ extern "C"
 
 namespace gfx
 {
+  //std::shared_ptr<sgs::SharedGlobalState> global_state = sgs::SharedGlobalState::getInstance();
+
   static const int kStatusBarHeight = 20;
 
   template<class ScreenDriver, class NavigationDriver>

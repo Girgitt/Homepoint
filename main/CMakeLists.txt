@@ -87,6 +87,7 @@ set(PLATFORM_SRC
 set(COMPONENT_SRCS 
     "AppContext.cpp"
     "main.cpp"
+    "SharedGlobalState.cpp"
     ${FS_SRC}
     ${UI_SRC}
     ${MQTT_SRC}
