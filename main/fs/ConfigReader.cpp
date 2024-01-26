@@ -6,6 +6,9 @@ extern "C"
   #include "esp_log.h"
 }
 
+
+#define LOG_TAG "config reader"
+
 namespace fs
 {
 
@@ -302,6 +305,7 @@ namespace fs
 
       read(document, "screenSaverMinutes", [&](int mins)
           {
+            ESP_LOGI(LOG_TAG,  "overriden mScreensaverMins to  %d min", mins);
             hwConfig.mScreensaverMins = mins;
           }
         );

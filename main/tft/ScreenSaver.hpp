@@ -8,6 +8,10 @@
 #include <memory>
 #include <optional>
 
+#include <SharedGlobalState.h>
+
+#define LOG_TAG "screen saver"
+
 namespace gfx
 {
   template<typename ScreenDriver>
@@ -18,20 +22,31 @@ namespace gfx
         mpDriver(driver),
         mpCtx(ctx)
       {
-        mLastTouch = std::chrono::system_clock::now();
+        // //initial touch time
+        // mLastTouch = std::chrono::system_clock::now();
       }
 
-      void operator()()
+      bool operator()()
       {
-        auto now = std::chrono::system_clock::now();
-        const auto timeOut = mpCtx->getModel().mHardwareConfig.mScreensaverMins;
-        if (std::chrono::duration_cast<std::chrono::minutes>(now - mLastTouch).count() > timeOut)
+        //auto now = std::chrono::system_clock::now();
+        const auto timeOutMin = mpCtx->getModel().mHardwareConfig.mScreensaverMins;
+        const auto idleSec = sgs::sharedGlobalState.getIdleTimeSec();
+        const auto uptime_sec = sgs::sharedGlobalState.getUptime();
+        if (uptime_sec % 5 == 0){
+            if(uptime_sec != last_log_print_sec){
+                ESP_LOGI(LOG_TAG,  "idleSec  %d sec", idleSec);
+                ESP_LOGI(LOG_TAG,  "timeOutMin  %d min", timeOutMin);
+                last_log_print_sec = uptime_sec;
+            }
+        }
+
+        if (static_cast<int>(sgs::sharedGlobalState.getIdleTimeSec()) < static_cast<int>(timeOutMin) * 60 )
         {
-          switchScreen(false);
+          return switchScreen(false);
         }
         else
         {
-          switchScreen(true);
+          return switchScreen(true);
         }
       }
 
@@ -57,18 +72,30 @@ namespace gfx
 
     private:
 
-      void switchScreen(bool on)
+      bool switchScreen(bool on)
       {
         if (on == mCurrentState)
         {
-          return;
+          return mCurrentState;
         }
+        
+        if (on)
+        {
+          ESP_LOGI(LOG_TAG,  "switching screen OFF, new state: %d", on);
+        }
+        else{
+          ESP_LOGI(LOG_TAG,  "switching screen ON, new state: %d", on);
+        }
+
         ScreenOnOffSwitch(mpDriver, on, mpCtx->getModel().mHardwareConfig.mIsLEDPinInverted);
         mCurrentState = on;
+        
+        return mCurrentState;
       }
 
       std::chrono::system_clock::time_point mLastTouch;
-      bool mCurrentState = true;
+      bool mCurrentState = false;
+      int last_log_print_sec = 0;
       ScreenDriver* mpDriver;
       std::shared_ptr<ctx::AppContext> mpCtx;
 
