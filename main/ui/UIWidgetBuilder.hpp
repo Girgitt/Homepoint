@@ -54,7 +54,7 @@ namespace util
         }
         button->setTextColor(textColor);
         button->setImage(imagePath);
-        screenSaver.activate();
+        //screenSaver.activate();  // no longer needed as screen saver uses now idle timeout from last touch event 
       };
       return button;
     };

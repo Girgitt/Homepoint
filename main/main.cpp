@@ -21,7 +21,7 @@ extern "C"
 
 #define MAINLOOPCORE 0
 TaskHandle_t runLoopHandle = NULL;
-bool loopTaskWDTEnabled = false; // Enable if watchdog running
+bool loopTaskWDTEnabled = true; // Enable if watchdog running
 
 std::shared_ptr<ctx::AppContext> mpAppContext(new ctx::AppContext());
 gfx::AppScreen<ScreenDriver, NavigationDriver> mScreen(mpAppContext);
@@ -46,6 +46,9 @@ extern "C"
     ESP_ERROR_CHECK(ret);
 
     initArduino();
+    
+    setCpuFrequencyMhz(240);
+
     InitializePlatform();
     Serial.begin(115200);
     setupApp();

@@ -42,10 +42,8 @@ namespace gfx
           break;
         case TouchState::TouchStart:
           newState = TouchState::TouchRunning;
-          //sgs::sharedGlobalState.registerTap();
           break;
         case TouchState::TouchEnded:
-          //sgs::sharedGlobalState.registerTap();
           break;
         case TouchState::TouchRunning:
           newState = TouchState::TouchRunning;
@@ -66,7 +64,6 @@ namespace gfx
         case TouchState::TouchRunning:
         case TouchState::TouchStart:
           newState = TouchState::TouchEnded;
-          //sgs::sharedGlobalState.registerTap();
           break;
         case TouchState::TouchEnded:
           newState = TouchState::NoTouch;

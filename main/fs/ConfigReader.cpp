@@ -309,6 +309,20 @@ namespace fs
             hwConfig.mScreensaverMins = mins;
           }
         );
+      
+      read(document, "screenSaverPowerSaveEnabled", [&](bool screenSaverPowerSaveEnabled)
+          {
+            ESP_LOGI(LOG_TAG,  "overriden screenSaverPowerSaveEnabled to  %d", screenSaverPowerSaveEnabled);
+            hwConfig.mIsScreenSaverPowerSaveEnabled = screenSaverPowerSaveEnabled;
+          }
+        );
+      
+      read(document, "powerSaveMHz", [&](int powerSaveMHz)
+          {
+            ESP_LOGI(LOG_TAG,  "overriden powerSaveMHz to  %d MHz", powerSaveMHz);
+            hwConfig.mPowerSaveFreq = powerSaveMHz;
+          }
+        );
 
       read(document, "screenRotationAngle", [&](int angle)
           {
