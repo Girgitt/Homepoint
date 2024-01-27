@@ -46,9 +46,6 @@ extern "C"
     ESP_ERROR_CHECK(ret);
 
     initArduino();
-    
-    setCpuFrequencyMhz(240);
-
     InitializePlatform();
     Serial.begin(115200);
     setupApp();

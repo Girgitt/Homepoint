@@ -10,10 +10,10 @@
 
 #include <SharedGlobalState.h>
 
-#define LOG_TAG "screen saver"
-
 namespace gfx
 {
+  static const char *LOG_TAG = "screen saver";
+
   template<typename ScreenDriver>
   struct ScreenSaver
   {
@@ -87,16 +87,23 @@ namespace gfx
           ESP_LOGI(LOG_TAG,  "switching screen OFF, new mCurrentState: %d", new_screen_state);
           if (power_save_enabled)
           {
-            ESP_LOGI(LOG_TAG,  "setting CPU freq to: %d", power_save_freq_mhz);
-            setCpuFrequencyMhz(power_save_freq_mhz);
+            ESP_LOGI(LOG_TAG,  "enabling power save features");
+            WiFi.setSleep(true);
+            //delay(100);
+            //ESP_LOGI(LOG_TAG,  "setting CPU freq to: %d", power_save_freq_mhz);
+            //setCpuFrequencyMhz(power_save_freq_mhz);
           }
         }
         else{
           ESP_LOGI(LOG_TAG,  "switching screen ON, new mCurrentState: %d", new_screen_state);
           if (power_save_enabled)
           {
-            ESP_LOGI(LOG_TAG,  "setting CPU freq to: %d", performance_freq_mhz);
-            setCpuFrequencyMhz(performance_freq_mhz);
+            ESP_LOGI(LOG_TAG,  "disabling power save features");
+            // increasing CPU frequency back to 240MHz is breaking wifi connection 
+            //ESP_LOGI(LOG_TAG,  "setting CPU freq to: %d", performance_freq_mhz);
+            //setCpuFrequencyMhz(performance_freq_mhz);
+            //delay(100);
+            WiFi.setSleep(false);
           }
         }
 

@@ -93,6 +93,7 @@ namespace ctx
       }
       if (mModel.mTimeZone != "")
       {
+        delay(100);  // trying to avoid ntp occasionally corrupting heap on startup
         mNTPSync = std::make_shared<ntp::NTPSync>(mModel.mTimeZone);
         mNTPSync->syncTime();
       }
