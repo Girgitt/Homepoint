@@ -42,6 +42,9 @@
   auto ScreenOnOffSwitch = [](ScreenDriver* driver, bool on, bool inverted = false)
   {
     driver->setSleep(!on);
+    auto axp = AXP192();
+    axp.SetDCDC3(!on);   // turn screen off / on
+    axp.SetLed(!on);
   };
   auto InitializeScreen = [](ScreenDriver* driver)
   {

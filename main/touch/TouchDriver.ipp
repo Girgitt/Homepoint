@@ -5,6 +5,7 @@
 #include "Arduino.h"
 #include <config/HID_Config.h>
 #include <tft/ScreenSaver.hpp>
+#include <SharedGlobalState.h>
 
 namespace gfx
 {
@@ -110,11 +111,13 @@ namespace gfx
       if (isShortPress)
       {
         tapEvent.state = PressEvent::Tap;
+        sgs::sharedGlobalState.registerTap();
         return std::make_optional(tapEvent);
       }
       if (isLongPress)
       {
         tapEvent.state = PressEvent::LongPress;
+        sgs::sharedGlobalState.registerTap();
         return std::make_optional(tapEvent);
       }
     }

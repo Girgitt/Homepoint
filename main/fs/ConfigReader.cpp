@@ -6,6 +6,9 @@ extern "C"
   #include "esp_log.h"
 }
 
+
+#define LOG_TAG "config reader"
+
 namespace fs
 {
 
@@ -302,7 +305,22 @@ namespace fs
 
       read(document, "screenSaverMinutes", [&](int mins)
           {
+            ESP_LOGI(LOG_TAG,  "overriden mScreensaverMins to  %d min", mins);
             hwConfig.mScreensaverMins = mins;
+          }
+        );
+      
+      read(document, "screenSaverPowerSaveEnabled", [&](bool screenSaverPowerSaveEnabled)
+          {
+            ESP_LOGI(LOG_TAG,  "overriden screenSaverPowerSaveEnabled to  %d", screenSaverPowerSaveEnabled);
+            hwConfig.mIsScreenSaverPowerSaveEnabled = screenSaverPowerSaveEnabled;
+          }
+        );
+      
+      read(document, "powerSaveMHz", [&](int powerSaveMHz)
+          {
+            ESP_LOGI(LOG_TAG,  "overriden powerSaveMHz to  %d MHz", powerSaveMHz);
+            hwConfig.mPowerSaveFreq = powerSaveMHz;
           }
         );
 
