@@ -7,6 +7,8 @@
 #include <ui/UIErrorWidget.hpp>
 #include <touch/TouchDriver.h>
 #include <util/varianthelper.hpp>
+#include <config/PlatformInject.hpp>
+#include <config/HID_Config.h>
 
 #include <SharedGlobalState.h>
 
@@ -24,6 +26,7 @@ extern "C"
 
 namespace gfx
 {
+  static const char *LOG_TAG_APPSCR = "app screen";
   //std::shared_ptr<sgs::SharedGlobalState> global_state = sgs::SharedGlobalState::getInstance();
 
   static const int kStatusBarHeight = 20;
@@ -170,8 +173,7 @@ namespace gfx
       // screen saver returned IGNORE_TOUCH_ON_WAKEUP
       return;
     }
-
-
+    
     // // Abort when Screensaver is on and no touch event happened.
     // if (!mScreenSaver.tapped(tapEvent))
     // {
@@ -186,10 +188,66 @@ namespace gfx
       }
     });
 
+    // avoiding vibration and other side-effects of uninitialized state on startup
+    if(sgs::sharedGlobalState.getUptime() < 1){
+      return;
+    }
+
+    if(sgs::sharedGlobalState.isTouchActive() && sgs::sharedGlobalState.MsSinceTouchStarted() == 0){
+      ESP_LOGI(LOG_TAG_APPSCR, "initial touch; blinking; ms since first touch: %d", static_cast<int>(sgs::sharedGlobalState.MsSinceTouchStarted()));
+      ESP_LOGI(LOG_TAG_APPSCR, "  short touch: vibration start");
+      VibrationStart();
+      sgs::sharedGlobalState.setVibrationActive(true);
+      mScreenSaver(1);
+      
+    }
+    if(sgs::sharedGlobalState.isVibrating()
+       && sgs::sharedGlobalState.MsSinceTouchStarted() > 200)
+    {
+      VibrationStop();
+      sgs::sharedGlobalState.setVibrationActive(false);
+    }
+    
+    if(sgs::sharedGlobalState.isTouchActive() 
+       && sgs::sharedGlobalState.MsSinceTouchStarted() > MSBeforeLongPress 
+       && sgs::sharedGlobalState.MsSinceTouchStarted() < MSBeforeInvalid)
+    {
+      ESP_LOGI(LOG_TAG_APPSCR, "long touch; vibrating; ms since first touch: %d", static_cast<int>(sgs::sharedGlobalState.MsSinceTouchStarted()));
+      if(!sgs::sharedGlobalState.isVibrating())
+      {
+        VibrationStart();
+        sgs::sharedGlobalState.setVibrationActive(true);
+      }
+    }
+    
+    if(sgs::sharedGlobalState.isVibrating() 
+       && sgs::sharedGlobalState.MsSinceTouchStarted() > MSBeforeInvalid)
+    {
+      ESP_LOGI(LOG_TAG_APPSCR, "  long touch: vibration stop");
+      VibrationStop();
+      sgs::sharedGlobalState.setVibrationActive(false);
+    }
+    if(!sgs::sharedGlobalState.isTouchActive() 
+        && sgs::sharedGlobalState.isVibrating())
+    {
+      VibrationStop();
+      sgs::sharedGlobalState.setVibrationActive(false);
+    }
+
+    // if(sgs::sharedGlobalState.isTouchActive() == false  
+    //    && sgs::sharedGlobalState.MsSinceTouchStarted() < MSBeforeInvalid + 100)
+    // {
+    //   ESP_LOGI(LOG_TAG_APPSCR, "  aborted touch: vibration stop");
+    //   VibrationStop();
+    // }
+
     if (!tapEvent)
     {
       return;
     }
+    
+    //VibrationPulse(100);
+
     std::for_each(mpSubViews.begin(), mpSubViews.end(), [&](auto& subView) {
         subView->didTap(*tapEvent);
     });

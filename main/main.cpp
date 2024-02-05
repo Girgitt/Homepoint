@@ -78,8 +78,9 @@ extern "C"
   void runLoop(void *pvParameters)
   {
     //esp_log_level_set("*", ESP_LOG_INFO);
-    int loop_delay_ms = 50;
+    int loop_delay_ms = 20;
     ESP_LOGI("main", "starting main loop");
+    long last_loop_ts = millis();
     
     for(;;)
     {
@@ -89,7 +90,8 @@ extern "C"
         }
         
         mScreen.draw();
-        sharedGlobalStateTickUptimeMs(sgs_instance, loop_delay_ms);
+        sharedGlobalStateTickUptimeMs(sgs_instance, millis() - last_loop_ts);
+        last_loop_ts = millis();
         //global_state->tickUptimeMs(loop_delay_ms);
         delay(loop_delay_ms);
     }

@@ -29,8 +29,29 @@ namespace gfx
         power_save_enabled = mpCtx->getModel().mHardwareConfig.mIsScreenSaverPowerSaveEnabled;
       }
 
-      bool operator()()
+      bool operator()(int blinks_count=0)
       {
+
+        // if(during_blink){
+        //   during_blink = false;
+        //   switchScreen(screen_on);  // to avoid delay blink state gets reset by normal, peridic call on ScreenSaver
+        // }
+
+        if(blinks_count > 0){
+          //during_blink = true;
+          for(;blinks_count>0; blinks_count-- )
+          {
+            switchScreen(screen_off);
+            delay(5);
+            if (blinks_count == 0){
+              return switchScreen(screen_on);
+            }
+            switchScreen(screen_on);
+            delay(50);
+          }
+        }
+
+
         //auto now = std::chrono::system_clock::now();
         const auto timeOutMin = mpCtx->getModel().mHardwareConfig.mScreensaverMins;
         const auto idleSec = sgs::sharedGlobalState.getIdleTimeSec();
@@ -121,6 +142,7 @@ namespace gfx
       int power_save_freq_mhz = 80;
       int performance_freq_mhz = 240;
       bool power_save_enabled = true;
+      bool during_blink = false;
       ScreenDriver* mpDriver;
       std::shared_ptr<ctx::AppContext> mpCtx;
 
