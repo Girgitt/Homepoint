@@ -32,6 +32,9 @@
     digitalWrite(TFT_LED, LOW);
     driver->begin(320000000);
   }; // Screen initialization routines
+  auto VibrationPulse = [](int duration_ms) {};
+  auto VibrationStart = []() {};
+  auto VibrationStop = []() {};
   auto InitializePlatform = []() {};
 
 #elif defined(M5StackCore2)
@@ -50,6 +53,24 @@
   {
     driver->begin();
   };
+  
+  auto VibrationPulse = [](int duration_ms) {
+    auto axp = AXP192();
+    axp.SetLDOEnable(3, true);
+    delay(duration_ms);
+    axp.SetLDOEnable(3, false);
+  };
+  
+  auto VibrationStart = []() {
+    auto axp = AXP192();
+    axp.SetLDOEnable(3, true);
+  };
+
+auto VibrationStop = []() {
+    auto axp = AXP192();
+    axp.SetLDOEnable(3, false);
+  };
+
   auto InitializePlatform = []()
   {
     auto axp = AXP192();
@@ -71,6 +92,9 @@
     digitalWrite(TFT_LED, backLightPower);
     driver->writeCommand(screenPower);
   };
+  auto VibrationPulse = [](int duration_ms) {};
+  auto VibrationStart = []() {};
+  auto VibrationStop = []() {};
   auto InitializeScreen = [](ScreenDriver* driver)
   {
     pinMode(TFT_LED, OUTPUT);

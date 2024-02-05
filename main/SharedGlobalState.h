@@ -15,7 +15,7 @@ namespace sgs
 
     class SharedGlobalState {
     public:
-        SharedGlobalState() : uptime_sec(0), last_log_print_sec(0), uptime_ms(0), last_tap_ms(0), sec_since_last_tap(0) {}
+        SharedGlobalState() : uptime_sec(0), last_log_print_sec(0), uptime_ms(0), last_tap_ms(0), sec_since_last_tap(0), touch_active(0) {}
         
         // when using with C-compatible functions version
         static SharedGlobalState& getInstance() {
@@ -28,6 +28,7 @@ namespace sgs
             std::lock_guard<std::mutex> lock(mutex);
             uptime_ms += static_cast<long>(ms);
             uptime_sec = std::floor(static_cast<double>(uptime_ms)/1000.0);
+            last_touch_ms += static_cast<long>(ms);
             
             // in case of uptime_ms overflow every 49.7 days the idle time is truncated to max 24h
             if (last_tap_ms > uptime_ms)
@@ -76,12 +77,39 @@ namespace sgs
             last_tap_ms = uptime_ms;
         }
 
+        void setTouchActive(bool is_touch_active) {
+            std::lock_guard<std::mutex> lock(mutex);
+            touch_active = is_touch_active;
+            last_touch_ms = 0;
+            ESP_LOGI("SharedGlobalState", "setting last_touch_ms = 0");
+        }
+        
+        bool isTouchActive() {
+            std::lock_guard<std::mutex> lock(mutex);
+            return touch_active;
+        }
+        long MsSinceTouchStarted() {
+            std::lock_guard<std::mutex> lock(mutex);
+            return last_touch_ms;
+        }
+        void setVibrationActive(bool is_vibration_active) {
+            std::lock_guard<std::mutex> lock(mutex);
+            is_vibrating = is_vibration_active;
+        }
+        bool isVibrating() {
+            std::lock_guard<std::mutex> lock(mutex);
+            return is_vibrating;
+        }
+
     private:
         int uptime_sec;
         int last_log_print_sec;
         long uptime_ms;
         long last_tap_ms;
         int sec_since_last_tap;
+        bool touch_active;
+        long last_touch_ms;
+        bool is_vibrating = false;
         mutable std::mutex mutex;   // Note: mutable is used to allow locking in const member functions
     };
 

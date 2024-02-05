@@ -27,6 +27,8 @@ namespace gfx
       TouchEvent mCurrentEvent;
       int mXAxisInversionAmount = 0;
       int mYAxisInversionAmount = 0;
+      int lostTouchConfirmationCount = 0;
+      int lostTouchConfirmationMax = 3;
 
   };
 } // namespace gfx

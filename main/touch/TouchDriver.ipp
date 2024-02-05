@@ -6,9 +6,12 @@
 #include <config/HID_Config.h>
 #include <tft/ScreenSaver.hpp>
 #include <SharedGlobalState.h>
+#include <config/PlatformInject.hpp>
 
 namespace gfx
 {
+  static const char *LOG_TAG_TOUCH = "touch driver";
+
   template <class Driver>
   TouchDriver<Driver>::TouchDriver(Driver* tftDriver) :
     mTouch(tftDriver)
@@ -35,17 +38,23 @@ namespace gfx
     uint16_t x, y = 0;
     if (mTouch->getTouch(&x, &y, 100))
     {
+      lostTouchConfirmationCount = 0;
       switch(mCurrentEvent.state)
       {
         case TouchState::NoTouch:
           newState = TouchState::TouchStart;
+          sgs::sharedGlobalState.setTouchActive(true);
+          ESP_LOGI(LOG_TAG_TOUCH, "touch start");
           break;
         case TouchState::TouchStart:
           newState = TouchState::TouchRunning;
+          ESP_LOGI(LOG_TAG_TOUCH, "touch start->running");
           break;
         case TouchState::TouchEnded:
+        ESP_LOGI(LOG_TAG_TOUCH, "touch in ended state");
           break;
         case TouchState::TouchRunning:
+          ESP_LOGI(LOG_TAG_TOUCH, "touch still running");
           newState = TouchState::TouchRunning;
         default:
           break;
@@ -59,13 +68,23 @@ namespace gfx
     }
     else
     {
+      lostTouchConfirmationCount += 1;
+      if(lostTouchConfirmationCount <= lostTouchConfirmationMax)
+      { 
+         ESP_LOGI(LOG_TAG_TOUCH, "lostTouchConfirmationCount < lostTouchConfirmationMax");
+         return std::nullopt;
+      }
+
       switch(mCurrentEvent.state)
       {
         case TouchState::TouchRunning:
         case TouchState::TouchStart:
+          ESP_LOGI(LOG_TAG_TOUCH, "touch start->ended");
           newState = TouchState::TouchEnded;
+          sgs::sharedGlobalState.setTouchActive(false);
           break;
         case TouchState::TouchEnded:
+        ESP_LOGI(LOG_TAG_TOUCH, "touch ended->no touch");
           newState = TouchState::NoTouch;
           break;
         default:
@@ -87,7 +106,7 @@ namespace gfx
   {
     auto touchEvt = touchPoint();
     if (!touchEvt)
-    {
+    { 
       return std::nullopt;
     }
     auto evt = *touchEvt;
@@ -101,8 +120,8 @@ namespace gfx
     {
       return std::nullopt;
     }
-    const auto isLongPress =  pressDelta > MSBeforeLongPress;
-    const auto isShortPress = pressDelta < MSBeforeTap;
+    const auto isLongPress =  pressDelta >= MSBeforeLongPress;
+    const auto isShortPress = pressDelta <= MSBeforeTap;
 
     if (evt.state == TouchState::TouchEnded)
     {
@@ -112,14 +131,17 @@ namespace gfx
       {
         tapEvent.state = PressEvent::Tap;
         sgs::sharedGlobalState.registerTap();
+        ESP_LOGI(LOG_TAG_TOUCH, "returning SHORT press");
         return std::make_optional(tapEvent);
       }
       if (isLongPress)
       {
         tapEvent.state = PressEvent::LongPress;
         sgs::sharedGlobalState.registerTap();
+        ESP_LOGI(LOG_TAG_TOUCH, "returning LONG press");
         return std::make_optional(tapEvent);
       }
+      ESP_LOGI(LOG_TAG_TOUCH, "press invalid - OVER TIMEOUT");
     }
     return std::nullopt;
   }
