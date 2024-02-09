@@ -14,6 +14,7 @@ namespace config
     bool mIsTouchYAxisInverted = kTOUCH_Y_AXIS_INVERTED;
     bool mIsDisplayColorInverted = kDISPLAY_INVERTED;
     bool mIsScreenSaverPowerSaveEnabled = true;
+    bool mPowerFrom5vRailNotUsb = true;
     int mPowerSaveFreq = 80;
     int mPerformanceFreq = 240;
   };

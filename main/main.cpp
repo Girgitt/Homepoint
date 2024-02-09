@@ -46,7 +46,7 @@ extern "C"
     ESP_ERROR_CHECK(ret);
 
     initArduino();
-    InitializePlatform();
+    InitializePlatform(mpAppContext->getModel().mHardwareConfig);
     Serial.begin(115200);
     setupApp();
   }
