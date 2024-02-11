@@ -75,18 +75,22 @@ auto VibrationStop = []() {
 
   auto InitializePlatform = [](config::HardwareConfig HwConfig)
   {
+    M5Touch().begin();
+    
     auto axp = AXP192();   
     if (HwConfig.mPowerFrom5vRailNotUsb)
     {
       axp.begin(kMBusModeInput); // kMBusModeInput means powered by external 5v and NOT USB
+      Serial.println("platform: power via external 5V");
     }
     else
     {
       axp.begin(kMBusModeOutput);
+      Serial.println("platform: power via USB");
     }
 
     axp.SetLDOEnable(3,0); // disable vibration motor
-    M5Touch().begin();
+    
   };
   
 #else // Touch Screen
