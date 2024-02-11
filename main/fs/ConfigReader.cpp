@@ -324,6 +324,13 @@ namespace fs
           }
         );
 
+      read(document, "powerFrom5vRailNotUsb", [&](bool powerFrom5vRailNotUsb)
+          {
+            ESP_LOGI(LOG_TAG,  "overriden powerFrom5vRailNotUsb to  %d", powerFrom5vRailNotUsb);
+            hwConfig.mPowerFrom5vRailNotUsb = powerFrom5vRailNotUsb;
+          }
+        );
+
       read(document, "screenRotationAngle", [&](int angle)
           {
             hwConfig.mScreenRotationAngle = angle;

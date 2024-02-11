@@ -4,6 +4,8 @@
 #include <touch/TouchDriver.h>
 #include <ui/PROGMEMIconDrawer.hpp>
 
+#include <model/HardwareConfig.hpp>
+
 //    _____  _            _______ ______ ____  _____  __  __ 
 //   |  __ \| |        /\|__   __|  ____/ __ \|  __ \|  \/  |
 //   | |__) | |       /  \  | |  | |__ | |  | | |__) | \  / |
@@ -35,7 +37,7 @@
   auto VibrationPulse = [](int duration_ms) {};
   auto VibrationStart = []() {};
   auto VibrationStop = []() {};
-  auto InitializePlatform = []() {};
+  auto InitializePlatform = [](config::HardwareConfig HwConfig) {};
 
 #elif defined(M5StackCore2)
   #include <tft/TFTM5StackDriver.hpp>
@@ -71,12 +73,24 @@ auto VibrationStop = []() {
     axp.SetLDOEnable(3, false);
   };
 
-  auto InitializePlatform = []()
+  auto InitializePlatform = [](config::HardwareConfig HwConfig)
   {
-    auto axp = AXP192();
-    axp.begin(kMBusModeOutput);
-    axp.SetLDOEnable(3,0); // disable vibration motor
     M5Touch().begin();
+    
+    auto axp = AXP192();   
+    if (HwConfig.mPowerFrom5vRailNotUsb)
+    {
+      axp.begin(kMBusModeInput); // kMBusModeInput means powered by external 5v and NOT USB
+      Serial.println("platform: power via external 5V");
+    }
+    else
+    {
+      axp.begin(kMBusModeOutput);
+      Serial.println("platform: power via USB");
+    }
+
+    axp.SetLDOEnable(3,0); // disable vibration motor
+    
   };
   
 #else // Touch Screen
@@ -101,7 +115,7 @@ auto VibrationStop = []() {
     digitalWrite(TFT_LED, LOW);    // LOW to turn backlight on - pcb version 01-02-00
     driver->begin(320000000);
   }; // Screen initialization routines
-  auto InitializePlatform = []() {
+  auto InitializePlatform = [](config::HardwareConfig HwConfig) {
     ledcAttachPin(21,0);
   };
 #endif                          

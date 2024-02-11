@@ -131,17 +131,17 @@ Point M5Touch::getPressPoint() {
 void M5Touch::update() { read(); }
 
 void M5Touch::dump() {
-  uint8_t data[256] = {0};
-  ft6336(0x00, 0x80, data);
-  ft6336(0x80, 0x80, data + 0x80);
-  Serial.printf("\n     ");
-  for (uint8_t i = 0; i < 16; i++) Serial.printf(".%1X ", i);
-  Serial.printf("\n");
-  for (uint16_t i = 0; i < 0x100; i++) {
-    if (!(i % 16)) Serial.printf("\n%1X.   ", i / 16);
-    Serial.printf("%02X ", data[i]);
-  }
-  Serial.printf("\n\n\n");
+  // uint8_t data[256] = {0};
+  // ft6336(0x00, 0x80, data);
+  // ft6336(0x80, 0x80, data + 0x80);
+  // Serial.printf("\n     ");
+  // for (uint8_t i = 0; i < 16; i++) Serial.printf(".%1X ", i);
+  // Serial.printf("\n");
+  // for (uint16_t i = 0; i < 0x100; i++) {
+  //   if (!(i % 16)) Serial.printf("\n%1X.   ", i / 16);
+  //   Serial.printf("%02X ", data[i]);
+  // }
+  // Serial.printf("\n\n\n");
 }
 
 // HotZone class (for compatibility with older M5Core2 code)

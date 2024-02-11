@@ -46,16 +46,8 @@ extern "C"
     ESP_ERROR_CHECK(ret);
 
     initArduino();
-    InitializePlatform();
     Serial.begin(115200);
-    setupApp();
-  }
 
-  void setupApp()
-  {
-    mScreen.setupScreen();
-    xTaskCreateUniversal(runLoop, "loopTask", 4096, NULL, 1, &runLoopHandle, MAINLOOPCORE);
-    mScreen.showWarning("Initializing HomePoint");
     try
     {
       mpAppContext->setup();
@@ -66,6 +58,19 @@ extern "C"
       mScreen.registerWifiCallback();
       return;
     }
+    
+    InitializePlatform(mpAppContext->getModel().mHardwareConfig);
+    
+    setupApp();
+  }
+
+  void setupApp()
+  {
+    
+    mScreen.setupScreen();
+    xTaskCreateUniversal(runLoop, "loopTask", 4096, NULL, 1, &runLoopHandle, MAINLOOPCORE);
+    mScreen.showWarning("Initializing HomePoint");
+
     if (!mpAppContext->getModel().hasWifiCredentials())
     {
       mScreen.showWarning("AP: HomePoint-Config, IP: 192.168.99.1");
@@ -78,22 +83,51 @@ extern "C"
   void runLoop(void *pvParameters)
   {
     //esp_log_level_set("*", ESP_LOG_INFO);
-    int loop_delay_ms = 20;
+    int desired_loop_cycle_length_ms = 30;
     ESP_LOGI("main", "starting main loop");
-    long last_loop_ts = millis();
+    long loop_start_ts;
+    long loop_end_ts = loop_start_ts = millis();
+    int work_took_ms = 0;
+    int loop_time_with_delays_took_ms = 0;
+    int loops_cnt = 0;
     
     for(;;)
     {
+        loop_start_ts = millis();
+        
         if (loopTaskWDTEnabled)
         {
           esp_task_wdt_reset();
         }
         
         mScreen.draw();
-        sharedGlobalStateTickUptimeMs(sgs_instance, millis() - last_loop_ts);
-        last_loop_ts = millis();
-        //global_state->tickUptimeMs(loop_delay_ms);
-        delay(loop_delay_ms);
+        
+        sharedGlobalStateTickUptimeMs(sgs_instance, millis() - loop_end_ts);
+        
+        loop_end_ts = millis();
+        
+        //global_state->tickUptimeMs(desired_loop_cycle_length_ms);
+        work_took_ms = loop_end_ts - loop_start_ts; 
+        
+        if (work_took_ms < desired_loop_cycle_length_ms)
+        {
+          delay(desired_loop_cycle_length_ms-work_took_ms);
+        }
+        else
+        {
+          ESP_LOGI("main", "work_took_ms > desired_loop_cycle_length_ms");
+          ESP_LOGI("main", "work_took_ms: %d", work_took_ms);
+          delay(15);  //we still need 15ms to be sure next touch read is available
+        }
+
+        loop_time_with_delays_took_ms = millis() - loop_start_ts;
+        
+        if(loops_cnt % 100 == 0)
+        {
+          ESP_LOGI("main", "work_took_ms: %d", work_took_ms);
+          ESP_LOGI("main", "loop_time_with_delays_took_ms: %d", loop_time_with_delays_took_ms);
+        }
+        loops_cnt += 1;
     }
   }
 }
