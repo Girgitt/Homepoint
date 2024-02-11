@@ -41,12 +41,12 @@ namespace gfx
           //during_blink = true;
           for(;blinks_count>0; blinks_count-- )
           {
-            switchScreen(screen_off);
+            switchScreen(screen_off, without_power_save);
             delay(5);
             if (blinks_count == 0){
-              return switchScreen(screen_on);
+              return switchScreen(screen_on, without_power_save);
             }
-            switchScreen(screen_on);
+            switchScreen(screen_on, without_power_save);
             delay(50);
           }
         }
@@ -66,11 +66,11 @@ namespace gfx
 
         if (static_cast<int>(sgs::sharedGlobalState.getIdleTimeSec()) < static_cast<int>(timeOutMin) * 60 )
         {
-          return switchScreen(screen_on);
+          return switchScreen(screen_on, with_power_save);
         }
         else
         {
-          return switchScreen(screen_off);
+          return switchScreen(screen_off, with_power_save);
         }
       }
 
@@ -96,7 +96,7 @@ namespace gfx
 
     private:
 
-      bool switchScreen(bool new_screen_state)
+      bool switchScreen(bool new_screen_state, bool skip_power_save)
       {
         if (new_screen_state == mCurrentState)
         {
@@ -106,26 +106,28 @@ namespace gfx
         if (new_screen_state)
         {
           ESP_LOGI(LOG_TAG,  "switching screen OFF, new mCurrentState: %d", new_screen_state);
-          if (power_save_enabled)
-          {
-            ESP_LOGI(LOG_TAG,  "enabling power save features");
-            WiFi.setSleep(true);
-            //delay(100);
-            //ESP_LOGI(LOG_TAG,  "setting CPU freq to: %d", power_save_freq_mhz);
-            //setCpuFrequencyMhz(power_save_freq_mhz);
-          }
+          if(!skip_power_save)
+            if (power_save_enabled)
+            {
+              ESP_LOGI(LOG_TAG,  "enabling power save features");
+              WiFi.setSleep(true);
+              //delay(100);
+              //ESP_LOGI(LOG_TAG,  "setting CPU freq to: %d", power_save_freq_mhz);
+              //setCpuFrequencyMhz(power_save_freq_mhz);
+            }
         }
         else{
           ESP_LOGI(LOG_TAG,  "switching screen ON, new mCurrentState: %d", new_screen_state);
-          if (power_save_enabled)
-          {
-            ESP_LOGI(LOG_TAG,  "disabling power save features");
-            // increasing CPU frequency back to 240MHz is breaking wifi connection 
-            //ESP_LOGI(LOG_TAG,  "setting CPU freq to: %d", performance_freq_mhz);
-            //setCpuFrequencyMhz(performance_freq_mhz);
-            //delay(100);
-            WiFi.setSleep(false);
-          }
+          if(!skip_power_save)
+            if (power_save_enabled)
+            {
+              ESP_LOGI(LOG_TAG,  "disabling power save features");
+              // increasing CPU frequency back to 240MHz is breaking wifi connection 
+              //ESP_LOGI(LOG_TAG,  "setting CPU freq to: %d", performance_freq_mhz);
+              //setCpuFrequencyMhz(performance_freq_mhz);
+              //delay(100);
+              WiFi.setSleep(false);
+            }
         }
 
         ScreenOnOffSwitch(mpDriver, new_screen_state, mpCtx->getModel().mHardwareConfig.mIsLEDPinInverted);
@@ -137,6 +139,8 @@ namespace gfx
       std::chrono::system_clock::time_point mLastTouch;
       const bool screen_on = false;
       const bool screen_off = true;
+      const bool with_power_save = false;
+      const bool without_power_save = true;
       bool mCurrentState = screen_on;  
       int last_log_print_sec = 0;
       int power_save_freq_mhz = 80;
