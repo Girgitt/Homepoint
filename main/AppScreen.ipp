@@ -134,7 +134,9 @@ namespace gfx
     using namespace std::placeholders;
     registerWifiCallback();
     mpAppContext->registerStateCallback(std::bind(&AppScreen::appContextChanged, this, _1));
-    mpAppContext->getMQTTConnection()->registerConnectionStatusCallback(std::bind(&UIStatusBarWidget::mqttConnectionChanged, mpStatusBar.get(), _1));
+    if (!mpAppContext->getModel().mMQTTServerConfig.addr.empty()){
+      mpAppContext->getMQTTConnection()->registerConnectionStatusCallback(std::bind(&UIStatusBarWidget::mqttConnectionChanged, mpStatusBar.get(), _1));
+    }
     mTft.setRotation(mpAppContext->getModel().mHardwareConfig.mScreenRotationAngle);
     mTft.setDisplayInverted(mpAppContext->getModel().mHardwareConfig.mIsDisplayColorInverted);
     mNavigation.updateHardwareConfig(mpAppContext->getModel().mHardwareConfig);

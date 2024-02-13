@@ -24,14 +24,18 @@ namespace ctx
       mpCaptiveServer = std::make_unique<wifi::CaptiveServer>(shared_from_this());
       return;
     }
-    mpMQTTConnection = std::make_shared<mqtt::MQTTConnection>(mModel.mMQTTServerConfig, mModel.mMQTTGroups);
     connectWireless();
-    mpMQTTConnection->registerConnectionStatusCallback([&](auto cb) {
-      if (cb == mqtt::MQTTConnectionStatus::CONNECTED)
-      {
-        mpMQTTConnection->bindScenes();
-      }
-    });
+    if(!mModel.mMQTTServerConfig.addr.empty())
+    {
+      mpMQTTConnection = std::make_shared<mqtt::MQTTConnection>(mModel.mMQTTServerConfig, mModel.mMQTTGroups);
+      
+      mpMQTTConnection->registerConnectionStatusCallback([&](auto cb) {
+        if (cb == mqtt::MQTTConnectionStatus::CONNECTED)
+        {
+          mpMQTTConnection->bindScenes();
+        }
+      });
+    }
     mpWebServer = std::make_unique<web::WebServer>(shared_from_this(), mModel.mWebCredentials);
   }
 
@@ -47,14 +51,17 @@ namespace ctx
       // Reboot to failsafe
       ESP.restart();
     }
-    mpMQTTConnection = std::make_shared<mqtt::MQTTConnection>(mModel.mMQTTServerConfig, mModel.mMQTTGroups);
-    mpMQTTConnection->registerConnectionStatusCallback([&](auto cb) {
-      if (cb == mqtt::MQTTConnectionStatus::CONNECTED)
-      {
-        mpMQTTConnection->bindScenes();
-      }
-    });
-    mpMQTTConnection->connect();
+    if (!mModel.mMQTTServerConfig.addr.empty())
+    {
+      mpMQTTConnection = std::make_shared<mqtt::MQTTConnection>(mModel.mMQTTServerConfig, mModel.mMQTTGroups);
+      mpMQTTConnection->registerConnectionStatusCallback([&](auto cb) {
+        if (cb == mqtt::MQTTConnectionStatus::CONNECTED)
+        {
+          mpMQTTConnection->bindScenes();
+        }
+      });
+      mpMQTTConnection->connect();
+    }
     mAppStateNotifier.broadcast(ContextState::Ready);
   }
 

@@ -64,12 +64,16 @@ namespace mqtt
         case MQTT_EVENT_ANY:
             ESP_LOGI(TAG, "MQTT_EVENT_ANY");
             break;
+        default:
+            ESP_LOGI(TAG, "UNSUPPORTED MQTT EVENT");
+            break;
+
     }
   }
 
   void MQTTConnection::connect()
   {
-    esp_mqtt_client_config_t mqtt_cfg = { };
+    esp_mqtt_client_config_t mqtt_cfg = {0};
     mqtt_cfg.uri = mConfig.addr.c_str();
     mqtt_cfg.username = std::get<0>(mConfig.credentials).c_str();
     mqtt_cfg.password = std::get<1>(mConfig.credentials).c_str();
